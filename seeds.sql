@@ -1,7 +1,7 @@
 -- Seeding departments
 USE employeeDB;
 
-INSERT INTO department (name) 
+INSERT INTO department (name)
 VALUES ("Ski Instruction"),
        ("Resort Management"),
        ("Lift Operations"),

@@ -1,14 +1,6 @@
 const inquirer = require("inquirer");
 const mysql2 = require("mysql2");
-require("console.table");
-const queryString = `
-SELECT e.id, e.first_name, e.last_name, r.title, r.salary, 
-       d.name AS department, m.first_name AS manager_first, m.last_name AS manager_last
-FROM employee e
-JOIN role r ON e.role_id = r.id
-JOIN department d ON r.department_id = d.id
-LEFT JOIN employee m ON e.manager_id = m.id;
-`;
+// require("console.table");
 
 const prompt = inquirer.createPromptModule();
 const menu = [
@@ -23,8 +15,33 @@ const menu = [
       "Add a department",
       "Add a role",
       "Add an employee",
-      "Update an employee roll",
+      "Update an employee role",
+      "Quit",
     ],
+  },
+];
+const departmentQuestion = [
+  {
+    type: "input",
+    name: "department",
+    message: "Input your department name:",
+  },
+];
+const roleQuestion = [
+  {
+    type: "input",
+    name: "name",
+    message: "Input your role name:",
+  },
+  {
+    type: "input",
+    name: "salary",
+    message: "Input the roles salary:",
+  },
+  {
+    type: "input",
+    name: "employee",
+    message: "Choose your roles Department:",
   },
 ];
 
@@ -42,30 +59,76 @@ db.connect((err) => {
 // db.query(queryString, function (err, results) {
 //   // console.log(results);
 // });
-
-prompt(menu).then((selection) => {
-  const { options } = selection;
-  if (options === "View all departments") {
-    db.query("SELECT * FROM department", function (err, results) {
-      console.table(results);
+function departmentFunction() {
+  prompt(departmentQuestion).then((data) => {
+    console.log(data);
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = [data.department];
+    db.query(sql, params, (err, result) => {
+      if (err) throw err;
     });
-  }
-  if (options === "View all employees") {
-    console.log(options);
-  }
-  if (options === "View all roles") {
-    console.log(options);
-  }
-  if (options === "Add a department") {
-    console.log(options);
-  }
-  if (options === "Add a role") {
-    console.log(options);
-  }
-  if (options === "Add an employee") {
-    console.log(options);
-  }
-  if (options === "Update an employee roll") {
-    console.log(options);
-  }
-});
+    mainMenu();
+  });
+}
+function employeeAdd() {
+  prompt(departmentQuestion).then((data) => {
+    console.log(data);
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = [data.department];
+    db.query(sql, params, (err, result) => {
+      if (err) throw err;
+    });
+    mainMenu();
+  });
+}
+function roleAdd() {
+  prompt(departmentQuestion).then((data) => {
+    console.log(data);
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = [data.department];
+    db.query(sql, params, (err, result) => {
+      if (err) throw err;
+    });
+    mainMenu();
+  });
+}
+
+function mainMenu() {
+  prompt(menu)
+    .then((selection) => {
+      const { options } = selection;
+      switch (options) {
+        case "View all departments":
+          db.query("SELECT * FROM department", function (err, results) {
+            console.table(results);
+            mainMenu();
+          });
+          break;
+        case "View all roles":
+          db.query("SELECT * FROM role LEFT JOIN dep", function (err, results) {
+            console.table(results);
+            mainMenu();
+          });
+          break;
+        case "View all employees":
+          db.query("SELECT * FROM employee", function (err, results) {
+            console.table(results);
+            mainMenu();
+          });
+          break;
+        case "Add a department":
+          departmentFunction();
+          // mainMenu();
+          break;
+        case "Add a role":
+          break;
+        case "Update an employee role":
+          break;
+        case "Quit":
+          process.exit();
+      }
+    })
+    .then();
+}
+
+mainMenu();
